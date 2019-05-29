@@ -1,0 +1,909 @@
+buildCmd: mvn -e -X -Dmaven.test.skip=true compile
+testCmd: true
+lineLength: 4096
+skipVerification: true
+cbmcArguments:
+  # Do not generate coverage comments on generated tests.
+  java-generate-no-comments: true
+phases:
+  -
+  #Phase 0 PRETTY AND SIMPLE - Simple models, quick cover, pretty Tests, Do Not Test Private Method Directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [ private ]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+  -
+  #Phase 1 PRETTY AND COMPLEX - Standard models, longer run time, pretty tests, Do Not Test Private Method Directly
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 2
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [ private ]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+  #Phase 2 Simple and Private Directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+      # If the logs contain output of the following then proceed to phase X
+    nextPhase:
+      # If the function is not analysable then do not pass onto the next phase
+      not_analyzed: null
+  -
+  #Phase 3 Complex and Private Directly
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 3000
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+  -
+  #Phase 4 EXCEPTIONS
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+  -
+    #PHASE 5 Big numbers and less contraints on inputs 
+    timeout: 300
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 100
+      # Bound the length of input strings.
+      max-nondet-string-length: 100
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 6
+units:
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/py/PinyinUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/py/PinyinUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/py/Pinyin.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/py/Pinyin.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/mining/word2vec/Preconditions.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/mining/word2vec/Preconditions.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/dependency/CoNll/PosTagCompiler.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/dependency/CoNll/PosTagCompiler.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/utility/Utility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/utility/Utility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/document/CorpusLoader.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/document/CorpusLoader.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/document/Document.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/document/Document.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/document/sentence/Sentence.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/document/sentence/Sentence.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/PerceptronSegmenter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/PerceptronSegmenter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/document/sentence/word/Word.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/document/sentence/word/Word.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/other/CharTable.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/other/CharTable.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/TextUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/TextUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/document/sentence/word/IWord.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/document/sentence/word/IWord.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/instance/InstanceHandler.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/instance/InstanceHandler.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/document/sentence/word/CompoundWord.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/document/sentence/word/CompoundWord.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil$LineIterator.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/tokenizer/lexical/NERecognizer.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/tokenizer/lexical/NERecognizer.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/document/sentence/word/WordFactory.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/document/sentence/word/WordFactory.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/utility/Utility$2.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/utility/Utility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/tagset/NERTagSet.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/tagset/NERTagSet.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/classification/utilities/io/ConsoleLogger.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/classification/utilities/io/ConsoleLogger.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/utility/Utility$1.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/utility/Utility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/utility/IOUtility$1.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/utility/IOUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/utility/Utility$3.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/utility/Utility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/document/CorpusLoader$Handler.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/document/CorpusLoader.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/utility/IOUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/utility/IOUtility.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/seg/CRF/CRFSegment.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/seg/CRF/CRFSegment.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/crf/Table.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/crf/Table.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/crf/FeatureTemplate.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/crf/FeatureTemplate.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/ITrie.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/ITrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/bintrie/BinTrie.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/bintrie/BinTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/seg/Segment.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/seg/Segment.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArray.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArray.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/CharacterHelper.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/CharacterHelper.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/other/CharTable.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/other/CharTable.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/TextUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/TextUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/GlobalObjectPool.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/GlobalObjectPool.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/crf/CRFModel.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/crf/CRFModel.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/seg/CharacterBasedSegment.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/seg/CharacterBasedSegment.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil$LineIterator.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/bintrie/BaseNode.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/bintrie/BaseNode.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/seg/common/Term.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/seg/common/Term.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/tag/Nature.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/tag/Nature.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/crf/FeatureFunction.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/crf/FeatureFunction.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/seg/Config.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/seg/Config.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/CRFSegmentModel.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/CRFSegmentModel.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/crf/crfpp/Mcsrch.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/crf/crfpp/Mcsrch.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/algorithm/Viterbi.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/algorithm/Viterbi.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/dictionary/item/EnumItem.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/dictionary/item/EnumItem.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/seg/common/Vertex.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/seg/common/Vertex.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CoreDictionary$Attribute.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CoreDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/tag/Nature.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/tag/Nature.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/TransformMatrix.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/TransformMatrix.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/TransformMatrixDictionary.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/TransformMatrixDictionary.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/synonym/Synonym.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/synonym/Synonym.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/synonym/Synonym$Type.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/synonym/Synonym.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/synonym/SynonymHelper.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/synonym/SynonymHelper.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/mining/word2vec/Word2VecTraining.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/mining/word2vec/Word2VecTraining.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/mining/word2vec/CacheCorpus.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/mining/word2vec/CacheCorpus.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/mining/word2vec/Config.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/mining/word2vec/Config.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/mining/word2vec/Utility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/mining/word2vec/Utility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/mining/word2vec/TrainingCallback.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/mining/word2vec/TrainingCallback.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/mining/word2vec/VocabWord.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/mining/word2vec/VocabWord.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/mining/word2vec/Corpus.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/mining/word2vec/Corpus.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/mining/word2vec/TextFileCorpus.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/mining/word2vec/TextFileCorpus.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/mining/word2vec/Word2VecTraining$TrainModelThread.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/mining/word2vec/Word2VecTraining.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CoreBiGramTableDictionary.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CoreBiGramTableDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/nr/JapanesePersonDictionary.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/nr/JapanesePersonDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArrayStream.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArrayStream.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie$LongestSearcher.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArray.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArray.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/TextUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/TextUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArrayOtherStream.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArrayOtherStream.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArrayFileStream.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArrayFileStream.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie$Node.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/algorithm/EditDistance.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/algorithm/EditDistance.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/synonym/SynonymHelper.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/synonym/SynonymHelper.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/nr/TranslatedPersonDictionary.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/nr/TranslatedPersonDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie$Node.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/algorithm/LongestCommonSubstring.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/algorithm/LongestCommonSubstring.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/MathUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/MathUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CoreBiGramTableDictionary.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CoreBiGramTableDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/seg/common/Vertex.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/seg/common/Vertex.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/algorithm/LongestCommonSubsequence.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/algorithm/LongestCommonSubsequence.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CustomDictionary.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CustomDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie$LongestSearcher.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/bintrie/BinTrie.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/bintrie/BinTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArray.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArray.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie$Searcher.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/LexiconUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/LexiconUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/other/CharTable.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/other/CharTable.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie$Node.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/BaseSearcher.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/BaseSearcher.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CustomDictionary$Searcher.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CustomDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/bintrie/BaseNode.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/bintrie/BaseNode.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CoreDictionary$Attribute.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CoreDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CoreDictionary.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CoreDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/tag/Nature.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/tag/Nature.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/AhoCorasick/AhoCorasickDoubleArrayTrie$IHit.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/AhoCorasick/AhoCorasickDoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/bintrie/Node.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/bintrie/Node.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/TextUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/TextUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CustomDictionary$1.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CustomDictionary.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/CharacterHelper.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/CharacterHelper.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/classification/statistics/ContinuousDistributions.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/classification/statistics/ContinuousDistributions.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/dependency/perceptron/accessories/Options.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dependency/perceptron/accessories/Options.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/tagset/NERTagSet.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/tagset/NERTagSet.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/tagset/TagSet.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/tagset/TagSet.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArray.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArray.java
+ - target:
+   - dir: target/test-classes
+     file: com/hankcs/hanlp/model/crf/CRFModelTest.class
+     sourceDir: src/test/java
+     sourceFile: com/hankcs/hanlp/model/crf/CRFModelTest.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/crf/Table.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/crf/Table.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/ITrie.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/ITrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/bintrie/BaseNode.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/bintrie/BaseNode.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/bintrie/BinTrie.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/bintrie/BinTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/crf/FeatureTemplate.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/crf/FeatureTemplate.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArray.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArray.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/crf/CRFModel.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/crf/CRFModel.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/TextUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/TextUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/crf/FeatureFunction.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/crf/FeatureFunction.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/PerceptronNameGenderClassifier.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/PerceptronNameGenderClassifier.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArrayStream.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArrayStream.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/PerceptronClassifier.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/PerceptronClassifier.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArray.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArray.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/classification/utilities/io/ILogger.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/classification/utilities/io/ILogger.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/tagset/TagSet.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/tagset/TagSet.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/model/LinearModel.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/model/LinearModel.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/tagset/CWSTagSet.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/tagset/CWSTagSet.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/datrie/IntArrayList.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/datrie/IntArrayList.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArrayOtherStream.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArrayOtherStream.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/datrie/MutableDoubleArrayTrieInteger.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/datrie/MutableDoubleArrayTrieInteger.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/tagset/NERTagSet.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/tagset/NERTagSet.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/tagset/POSTagSet.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/tagset/POSTagSet.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/datrie/CharacterMapping.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/datrie/CharacterMapping.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArrayFileStream.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArrayFileStream.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/feature/ImmutableFeatureMDatMap.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/feature/ImmutableFeatureMDatMap.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/TextUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/TextUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/common/TaskType.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/common/TaskType.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/feature/FeatureMap.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/feature/FeatureMap.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/datrie/Utf8CharacterMapping.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/datrie/Utf8CharacterMapping.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/bigram/BigramDependencyModel.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/bigram/BigramDependencyModel.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArray.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArray.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/dependency/model/WordNatureWeightModelMaker.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/dependency/model/WordNatureWeightModelMaker.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie$Node.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CoreDictionary$Attribute.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CoreDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/tag/Nature.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/tag/Nature.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/TextUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/TextUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/LexiconUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/LexiconUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil$LineIterator.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
