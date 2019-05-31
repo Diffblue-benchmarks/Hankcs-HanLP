@@ -1,0 +1,348 @@
+buildCmd: mvn -e -X -Dmaven.test.skip=true compile
+testCmd: true
+lineLength: 4096
+skipVerification: true
+cbmcArguments:
+  # Do not generate coverage comments on generated tests.
+  java-generate-no-comments: true
+phases:
+  -
+  #Phase 0 PRETTY AND SIMPLE - Simple models, quick cover, pretty Tests, Do Not Test Private Method Directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [ private ]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+  -
+  #Phase 1 PRETTY AND COMPLEX - Standard models, longer run time, pretty tests, Do Not Test Private Method Directly
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 2
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [ private ]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+  #Phase 2 Simple and Private Directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+      # If the logs contain output of the following then proceed to phase X
+    nextPhase:
+      # If the function is not analysable then do not pass onto the next phase
+      not_analyzed: null
+  -
+  #Phase 3 Complex and Private Directly
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 3000
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Set string input value  
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c"]
+  -
+  #Phase 4 EXCEPTIONS
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+  -
+    #PHASE 5 Big numbers and less contraints on inputs 
+    timeout: 300
+    cbmcArguments:
+      # Use the standard models library.
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: false
+      # Constrain the size of arrays created in the analyzed code.
+      java-max-vla-length: 10000
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 100
+      # Bound the length of input strings.
+      max-nondet-string-length: 100
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 6
+units:
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/py/PinyinUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/py/PinyinUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/py/Pinyin.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/py/Pinyin.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/mining/word2vec/Preconditions.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/mining/word2vec/Preconditions.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/dependency/CoNll/PosTagCompiler.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/dependency/CoNll/PosTagCompiler.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/crf/crfpp/Mcsrch.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/crf/crfpp/Mcsrch.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/algorithm/Viterbi.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/algorithm/Viterbi.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/dictionary/item/EnumItem.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/dictionary/item/EnumItem.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/seg/common/Vertex.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/seg/common/Vertex.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CoreDictionary$Attribute.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CoreDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/tag/Nature.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/tag/Nature.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/TransformMatrix.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/TransformMatrix.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/TransformMatrixDictionary.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/TransformMatrixDictionary.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/synonym/Synonym.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/synonym/Synonym.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/synonym/Synonym$Type.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/synonym/Synonym.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/synonym/SynonymHelper.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/synonym/SynonymHelper.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/algorithm/EditDistance.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/algorithm/EditDistance.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/synonym/SynonymHelper.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/synonym/SynonymHelper.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/nr/TranslatedPersonDictionary.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/nr/TranslatedPersonDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie$Node.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/collection/trie/DoubleArrayTrie.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/algorithm/LongestCommonSubstring.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/algorithm/LongestCommonSubstring.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/MathUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/MathUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CoreBiGramTableDictionary.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CoreBiGramTableDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/seg/common/Vertex.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/seg/common/Vertex.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/algorithm/LongestCommonSubsequence.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/algorithm/LongestCommonSubsequence.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/CharacterHelper.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/CharacterHelper.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/classification/statistics/ContinuousDistributions.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/classification/statistics/ContinuousDistributions.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/dependency/perceptron/accessories/Options.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dependency/perceptron/accessories/Options.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/tagset/NERTagSet.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/tagset/NERTagSet.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/model/perceptron/tagset/TagSet.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/model/perceptron/tagset/TagSet.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/ByteUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/ByteUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/ByteArray.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/ByteArray.java
+ - target:
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IIOAdapter.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IIOAdapter.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/dictionary/CoreDictionary$Attribute.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/dictionary/CoreDictionary.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/tag/Nature.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/tag/Nature.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/TextUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/TextUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/utility/LexiconUtility.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/utility/LexiconUtility.java
+   - dir: target/classes
+     file: com/hankcs/hanlp/corpus/io/IOUtil$LineIterator.class
+     sourceDir: src/main/java
+     sourceFile: com/hankcs/hanlp/corpus/io/IOUtil.java
