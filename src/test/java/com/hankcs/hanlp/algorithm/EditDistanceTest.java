@@ -1,53 +1,152 @@
 package com.hankcs.hanlp.algorithm;
 
-import com.hankcs.hanlp.corpus.synonym.Synonym;
-import com.hankcs.hanlp.dictionary.common.CommonSynonymDictionary.SynonymItem;
+import com.hankcs.hanlp.algorithm.EditDistance;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
-import java.util.ArrayList;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.Timeout;
 
 public class EditDistanceTest {
 
-    @Test
-    public void testComputeCharArray() {
-        Assert.assertEquals(2,
-            EditDistance.compute("foo".toCharArray(), "oof".toCharArray()));
-    }
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
-    @Test
-    public void testComputeString() {
-        Assert.assertEquals(2, EditDistance.compute("foo", "oof"));
-    }
+  @Rule public final Timeout globalTimeout = new Timeout(10000);
 
-    @Test
-    public void testComputeList() {
-        ArrayList<SynonymItem> synonymItems1 = new ArrayList<SynonymItem>();
-        synonymItems1.add(new SynonymItem(new Synonym("", 32L), null, '='));
-        
-        ArrayList<SynonymItem> synonymItems2 = new ArrayList<SynonymItem>();
-        synonymItems2.add(new SynonymItem(new Synonym("", 64L), null, '='));
+  /* testedClasses: EditDistance */
+  // Test written by Diffblue Cover.
+  @Test
+  public void computeInput00OutputPositive() {
 
-        Assert.assertEquals(32L,
-            EditDistance.compute(synonymItems1, synonymItems2));
-    }
+    // Arrange
+    final long[] arrayA = {};
+    final long[] arrayB = {};
 
-    @Test
-    public void testComputeLong() {
-        Assert.assertEquals(3074457345618258602L,
-            EditDistance.compute(new long[]{}, new long[]{4L, 0L}));
-        Assert.assertEquals(-15,
-            EditDistance.compute(new long[]{-16}, new long[]{32}));
-        Assert.assertEquals(0,
-            EditDistance.compute(new long[]{16}, new long[]{16}));
-    }
+    // Act
+    final long actual = EditDistance.compute(arrayA, arrayB);
 
-    @Test
-    public void testComputeInt() {
-        Assert.assertEquals(715827882,
-            EditDistance.compute(new int[]{4, 0}, new int[]{}));
-        Assert.assertEquals(6,
-            EditDistance.compute(new int[]{4, 0}, new int[]{8, 16}));
-        Assert.assertEquals(0,
-            EditDistance.compute(new int[]{16}, new int[]{16}));
-    }
+    // Assert result
+    Assert.assertEquals(3_074_457_345_618_258_602L, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void computeInput00OutputPositive2() {
+
+    // Arrange
+    final int[] arrayA = {};
+    final int[] arrayB = {};
+
+    // Act
+    final int actual = EditDistance.compute(arrayA, arrayB);
+
+    // Assert result
+    Assert.assertEquals(715_827_882, actual);
+  }
+
+  // Test written by Diffblue Cover.
+
+  @Test
+  public void computeInput00OutputZero() {
+
+    // Arrange
+    final char[] wrongWord = {};
+    final char[] rightWord = {};
+
+    // Act
+    final int actual = EditDistance.compute(wrongWord, rightWord);
+
+    // Assert result
+    Assert.assertEquals(0, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void computeInput10OutputPositive() {
+
+    // Arrange
+    final int[] arrayA = {66_274_931};
+    final int[] arrayB = {};
+
+    // Act
+    final int actual = EditDistance.compute(arrayA, arrayB);
+
+    // Assert result
+    Assert.assertEquals(715_827_882, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void computeInput10OutputPositive3() {
+
+    // Arrange
+    final char[] wrongWord = {'\u0000'};
+    final char[] rightWord = {};
+
+    // Act
+    final int actual = EditDistance.compute(wrongWord, rightWord);
+
+    // Assert result
+    Assert.assertEquals(1, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void computeInput11OutputZero() {
+
+    // Arrange
+    final char[] wrongWord = {'\u0000'};
+    final char[] rightWord = {'\u0000'};
+
+    // Act
+    final int actual = EditDistance.compute(wrongWord, rightWord);
+
+    // Assert result
+    Assert.assertEquals(0, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void computeInput11OutputZero2() {
+
+    // Arrange
+    final int[] arrayA = {0};
+    final int[] arrayB = {0};
+
+    // Act
+    final int actual = EditDistance.compute(arrayA, arrayB);
+
+    // Assert result
+    Assert.assertEquals(0, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void computeInput11OutputZero3() {
+
+    // Arrange
+    final long[] arrayA = {0L};
+    final long[] arrayB = {0L};
+
+    // Act
+    final long actual = EditDistance.compute(arrayA, arrayB);
+
+    // Assert result
+    Assert.assertEquals(0L, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void computeInput80OutputPositive() {
+
+    // Arrange
+    final long[] arrayA = {-9_222_561_147_029_291_008L, 0L, 0L, 0L, 0L, 0L, 0L, 0L};
+    final long[] arrayB = {};
+
+    // Act
+    final long actual = EditDistance.compute(arrayA, arrayB);
+
+    // Assert result
+    Assert.assertEquals(3_074_457_345_618_258_602L, actual);
+  }
 }

@@ -1,186 +1,110 @@
 package com.hankcs.hanlp.model.crf;
 
-import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.collection.trie.bintrie.BinTrie;
-import com.hankcs.hanlp.corpus.document.CorpusLoader;
-import com.hankcs.hanlp.corpus.document.Document;
-import com.hankcs.hanlp.corpus.document.sentence.word.IWord;
-import com.hankcs.hanlp.corpus.document.sentence.word.Word;
-import com.hankcs.hanlp.corpus.io.ByteArray;
-import com.hankcs.hanlp.corpus.io.IOUtil;
-import com.hankcs.hanlp.seg.CRF.CRFSegment;
-import com.hankcs.hanlp.utility.Predefine;
-import junit.framework.TestCase;
+import com.hankcs.hanlp.model.crf.CRFModel;
+import com.hankcs.hanlp.model.crf.FeatureTemplate;
+import com.hankcs.hanlp.model.crf.Table;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.Timeout;
 
-import java.io.*;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 
-public class CRFModelTest extends TestCase
-{
-//    public void testTemplate() throws Exception
-//    {
-//        FeatureTemplate featureTemplate = FeatureTemplate.create("U05:%x[-2,0]/%x[-1,0]/%x[0,0]");
-//        Table table = new Table();
-//        table.v = new String[][]{
-//            {"那", "S"},
-//            {"音", "B"},
-//            {"韵", "E"},};
-//        char[] parameter = featureTemplate.generateParameter(table, 0);
-//        System.out.println(parameter);
-//    }
+public class CRFModelTest {
 
-//    public void testTestLoadTemplate() throws Exception
-//    {
-//        DataOutputStream out = new DataOutputStream(new FileOutputStream("data/test/out.bin"));
-//        FeatureTemplate featureTemplate = FeatureTemplate.create("U05:%x[-2,0]/%x[-1,0]/%x[0,0]");
-//        featureTemplate.save(out);
-//        featureTemplate = new FeatureTemplate();
-//        featureTemplate.load(ByteArray.createByteArray("data/test/out.bin"));
-//        System.out.println(featureTemplate);
-//    }
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
-//    public void testLoadFromTxt() throws Exception
-//    {
-//        CRFModel model = CRFModel.loadTxt("D:\\Tools\\CRF++-0.58\\example\\seg_cn\\model.txt");
-//        Table table = new Table();
-//        table.v = new String[][]{
-//            {"商", "?"},
-//            {"品", "?"},
-//            {"和", "?"},
-//            {"服", "?"},
-//            {"务", "?"},
-//        };
-//        model.tag(table);
-//        System.out.println(table);
-//    }
+  @Rule public final Timeout globalTimeout = new Timeout(10000);
 
-//    public void testSegment() throws Exception
-//    {
-//        HanLP.Config.enableDebug();
-//        CRFSegment segment = new CRFSegment();
-////        segment.enablePartOfSpeechTagging(true);
-//        System.out.println(segment.seg("乐视超级手机能否承载贾布斯的生态梦"));
-//    }
+  /* testedClasses: CRFModel */
+  // Test written by Diffblue Cover.
+  @Test
+  public void computeScoreInput0PositiveOutputZero() {
 
-    /**
-     * 现有的CRF效果不满意，重新制作一份以供训练
-     *
-     * @throws Exception
-     */
-//    public void testPrepareCRFTrainingCorpus() throws Exception
-//    {
-//        final BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("e:\\2014.txt"), "UTF-8"));
-//        CorpusLoader.walk("D:\\Doc\\语料库\\2014_hankcs", new CorpusLoader.Handler()
-//                          {
-//                              @Override
-//                              public void handle(Document document)
-//                              {
-//                                  try
-//                                  {
-//                                      List<List<Word>> sentenceList = document.getSimpleSentenceList();
-//                                      if (sentenceList.size() == 0) return;
-//                                      for (List<Word> sentence : sentenceList)
-//                                      {
-//                                          if (sentence.size() == 0) continue;
-//                                          for (IWord iWord : sentence)
-//                                          {
-//                                              String word = iWord.getValue();
-//                                              String tag = iWord.getLabel();
-//                                              String compiledString = compile(tag);
-//                                              if (compiledString != null)
-//                                              {
-//                                                  word = compiledString;
-//                                              }
-//                                              if (word.length() == 1 || compiledString != null)
-//                                              {
-//                                                  bw.write(word);
-//                                                  bw.write('\t');
-//                                                  bw.write('S');
-//                                                  bw.write('\n');
-//                                              }
-//                                              else
-//                                              {
-//                                                  bw.write(word.charAt(0));
-//                                                  bw.write('\t');
-//                                                  bw.write('B');
-//                                                  bw.write('\n');
-//                                                  for (int i = 1; i < word.length() - 1; ++i)
-//                                                  {
-//                                                      bw.write(word.charAt(i));
-//                                                      bw.write('\t');
-//                                                      bw.write('M');
-//                                                      bw.write('\n');
-//                                                  }
-//                                                  bw.write(word.charAt(word.length() - 1));
-//                                                  bw.write('\t');
-//                                                  bw.write('E');
-//                                                  bw.write('\n');
-//                                              }
-//                                          }
-//                                          bw.write('\n');
-//                                      }
-//                                  }
-//                                  catch (IOException e)
-//                                  {
-//                                      e.printStackTrace();
-//                                  }
-//                              }
-//                          }
-//
-//        );
-//        bw.close();
-//    }
+    // Arrange
+    final LinkedList<double[]> scoreList = new LinkedList<double[]>();
+    final int tag = 2;
 
-//    public void testEnglishAndNumber() throws Exception
-//    {
-//        String text = "2.34米";
-////        System.out.println(CRFSegment.atomSegment(text.toCharArray()));
-//        HanLP.Config.enableDebug();
-//        CRFSegment segment = new CRFSegment();
-//        System.out.println(segment.seg(text));
-//    }
+    // Act
+    final double actual = CRFModel.computeScore(scoreList, tag);
 
-    public static String compile(String tag)
-    {
-        if (tag.startsWith("m")) return "M";
-        else if (tag.equals("x")) return "W";
-        else if (tag.equals("nx")) return "W";
-        return null;
-    }
+    // Assert result
+    Assert.assertEquals(0.0, actual, 0.0);
+  }
 
-    public void testLoadModelWithBiGramFeature() throws Exception
-    {
-        String path = HanLP.Config.CRFSegmentModelPath + Predefine.BIN_EXT;
-        CRFModel model = new CRFModel(new BinTrie<FeatureFunction>());
-        model.load(ByteArray.createByteArray(path));
+  // Test written by Diffblue Cover.
+  @Test
+  public void computeScoreInput1PositiveOutputZero() {
 
-        Table table = new Table();
-        String text = "人民生活进一步改善了";
-        table.v = new String[text.length()][2];
-        for (int i = 0; i < text.length(); i++)
-        {
-            table.v[i][0] = String.valueOf(text.charAt(i));
-        }
+    // Arrange
+    final LinkedList<double[]> scoreList = new LinkedList<double[]>();
+    final double[] myDoubleArray = {0.0, 0.0, 0.0, 0.0, 0.0};
+    scoreList.add(myDoubleArray);
+    final int tag = 2;
 
-        model.tag(table);
-//        System.out.println(table);
-    }
+    // Act
+    final double actual = CRFModel.computeScore(scoreList, tag);
 
-//    public void testRemoveSpace() throws Exception
-//    {
-//        String inputPath = "E:\\2014.txt";
-//        String outputPath = "E:\\2014f.txt";
-//        BufferedReader br = IOUtil.newBufferedReader(inputPath);
-//        BufferedWriter bw = IOUtil.newBufferedWriter(outputPath);
-//        String line = "";
-//        int preLength = 0;
-//        while ((line = br.readLine()) != null)
-//        {
-//            if (preLength == 0 && line.length() == 0) continue;
-//            bw.write(line);
-//            bw.newLine();
-//            preLength = line.length();
-//        }
-//        bw.close();
-//    }
+    // Assert result
+    Assert.assertEquals(0.0, actual, 0.0);
+  }
+
+  // Test written by Diffblue Cover.
+
+  @Test
+  public void computeScoreListInputNotNullZeroOutputIndexOutOfBoundsException()
+      throws InvocationTargetException {
+
+    // Arrange
+    final CRFModel objectUnderTest = new CRFModel();
+    objectUnderTest.id2tag = null;
+    objectUnderTest.featureFunctionTrie = null;
+    objectUnderTest.matrix = null;
+    objectUnderTest.tag2id = null;
+    final ArrayList<FeatureTemplate> arrayList = new ArrayList<FeatureTemplate>();
+    final FeatureTemplate featureTemplate = new FeatureTemplate();
+    final ArrayList arrayList1 = new ArrayList();
+    arrayList1.add("3");
+    featureTemplate.delimiterList = arrayList1;
+    featureTemplate.template = null;
+    final ArrayList arrayList2 = new ArrayList();
+    featureTemplate.offsetList = arrayList2;
+    arrayList.add(featureTemplate);
+    objectUnderTest.featureTemplateList = arrayList;
+    final Table table = new Table();
+    final int current = 0;
+
+    // Act
+    thrown.expect(IndexOutOfBoundsException.class);
+    objectUnderTest.computeScoreList(table, current);
+
+    // Method is not expected to return due to exception thrown
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void getTagIdInputNotNullOutputNull() throws InvocationTargetException {
+
+    // Arrange
+    final CRFModel objectUnderTest = new CRFModel();
+    objectUnderTest.id2tag = null;
+    objectUnderTest.featureFunctionTrie = null;
+    objectUnderTest.matrix = null;
+    final HashMap<String, Integer> hashMap = new HashMap<String, Integer>();
+    objectUnderTest.tag2id = hashMap;
+    objectUnderTest.featureTemplateList = null;
+    final String tag = "a\'b\'c";
+
+    // Act
+    final Integer actual = objectUnderTest.getTagId(tag);
+
+    // Assert result
+    Assert.assertNull(actual);
+  }
 }

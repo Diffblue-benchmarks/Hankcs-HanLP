@@ -1,45 +1,53 @@
 package com.hankcs.hanlp.model.perceptron;
 
-import com.hankcs.hanlp.dictionary.CustomDictionary;
-import junit.framework.TestCase;
+import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.isNull;
 
-import java.util.List;
+import com.hankcs.hanlp.model.perceptron.PerceptronSegmenter;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.Timeout;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-public class PerceptronSegmenterTest extends TestCase
-{
+import java.io.IOException;
+import java.lang.reflect.Array;
 
-    private PerceptronSegmenter segmenter;
+@RunWith(PowerMockRunner.class)
+public class PerceptronSegmenterTest {
 
-    @Override
-    public void setUp() throws Exception
-    {
-        segmenter = new PerceptronSegmenter();
-    }
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
-    public void testEmptyString() throws Exception
-    {
-        segmenter.segment("");
-    }
+  @Rule public final Timeout globalTimeout = new Timeout(10000);
 
-    public void testNRF() throws Exception
-    {
-        String text = "他们确保了唐纳德·特朗普在总统大选中获胜。";
-        List<String> wordList = segmenter.segment(text);
-        assertTrue(wordList.contains("唐纳德·特朗普"));
-    }
+  /* testedClasses: PerceptronSegmenter */
+  // Test written by Diffblue Cover.
+  @PrepareForTest(PerceptronSegmenter.class)
+  @Test
+  public void constructorOutputIllegalArgumentException() throws Exception, IOException {
 
-    public void testNoCustomDictionary() throws Exception
-    {
-        PerceptronLexicalAnalyzer analyzer = new PerceptronLexicalAnalyzer();
-        analyzer.enableCustomDictionary(false);
-        CustomDictionary.insert("禁用用户词典");
-        assertEquals("[禁用/v, 用户/n, 词典/n]", analyzer.seg("禁用用户词典").toString());
-    }
+    // Arrange
+    final char[] myCharArray = {
+        '\\', 'u', '9',  '5',  '1', '9',  '\\', 'u', '8',  'b',  'e', 'f',  '\\', 'u', '7',
+        '6',  '8', '4',  '\\', 'u', '6',  'a',  '2', '1',  '\\', 'u', '5',  '7',  '8', 'b',
+        '\\', 'u', '7',  'c',  '7', 'b',  '\\', 'u', '5',  '7',  '8', 'b',  ':',  ' ', '\\',
+        'u',  '4', 'f',  '2',  '0', '\\', 'u',  '5', '1',  '6',  '5', '\\', 'u',  '7', '6',
+        '8',  '4', '\\', 'u',  '4', 'e',  '0',  'd', '\\', 'u',  '6', '6',  '2',  'f', '\\',
+        'u',  '5', '2',  '0',  '6', '\\', 'u',  '8', 'b',  'c',  'd', '\\', 'u',  '6', 'a',
+        '2',  '1', '\\', 'u',  '5', '7',  '8',  'b', '\\', 'u',  'f', 'f',  '0',  'c', '\\',
+        'u',  '8', '0',  '0',  'c', '\\', 'u',  '6', '6',  '2',  'f', ' ',  'n',  'u', 'l',
+        'l',  ' ', '\\', 'u',  '6', 'a',  '2',  '1', '\\', 'u',  '5', '7',  '8',  'b'};
+    PowerMockito.whenNew(PerceptronSegmenter.class)
+        .withParameterTypes(String.class)
+        .withArguments(or(isA(String.class), isNull(String.class)))
+        .thenThrow(myCharArray);
 
-    public void testLearnAndSeg() throws Exception
-    {
-        PerceptronLexicalAnalyzer analyzer = new PerceptronLexicalAnalyzer();
-        analyzer.learn("与/c 特朗普/nr 通/v 电话/n 讨论/v [太空/s 探索/vn 技术公司/n]/nt");
-        assertEquals("[与/c, 特朗普/k, 通/v, 电话/n, 讨论/v, 太空探索技术公司/nt]", analyzer.seg("与特朗普通电话讨论太空探索技术公司").toString());
-    }
+    // Act, creating object to test constructor
+    thrown.expect(IllegalArgumentException.class);
+    final PerceptronSegmenter objectUnderTest = new PerceptronSegmenter();
+  }
 }
