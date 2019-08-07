@@ -1,43 +1,35 @@
 package com.hankcs.hanlp.collection.trie.datrie;
 
-import com.hankcs.hanlp.corpus.io.ByteArray;
-import junit.framework.TestCase;
+import com.hankcs.hanlp.collection.trie.datrie.CharacterMapping;
+import com.hankcs.hanlp.collection.trie.datrie.MutableDoubleArrayTrieInteger;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.Timeout;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 
-public class MutableDoubleArrayTrieIntegerTest extends TestCase
-{
-    MutableDoubleArrayTrieInteger mdat;
-    private int size;
+public class MutableDoubleArrayTrieIntegerTest {
 
-    @Override
-    public void setUp() throws Exception
-    {
-        mdat = new MutableDoubleArrayTrieInteger();
-        size = 64;
-        for (int i = 0; i < size; ++i)
-        {
-            mdat.put(String.valueOf(i), i);
-        }
-    }
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
-    public void testSaveLoad() throws Exception
-    {
-        File tempFile = File.createTempFile("hanlp", ".mdat");
-        mdat.save(new DataOutputStream(new FileOutputStream(tempFile)));
-        mdat = new MutableDoubleArrayTrieInteger();
-        mdat.load(ByteArray.createByteArray(tempFile.getAbsolutePath()));
-        assertEquals(size, mdat.size());
-        for (int i = 0; i < size; ++i)
-        {
-            assertEquals(i, mdat.get(String.valueOf(i)));
-        }
+  @Rule public final Timeout globalTimeout = new Timeout(10000);
 
-        for (int i = size; i < 2 * size; ++i)
-        {
-            assertEquals(-1, mdat.get(String.valueOf(i)));
-        }
-    }
+  /* testedClasses: MutableDoubleArrayTrieInteger */
+  // Test written by Diffblue Cover.
+
+  @Test
+  public void constructorInputNullOutputNullPointerException() {
+
+    // Arrange
+    final CharacterMapping charMap = null;
+
+    // Act, creating object to test constructor
+    thrown.expect(NullPointerException.class);
+    final MutableDoubleArrayTrieInteger objectUnderTest =
+        new MutableDoubleArrayTrieInteger(charMap);
+
+    // Method is not expected to return due to exception thrown
+  }
 }

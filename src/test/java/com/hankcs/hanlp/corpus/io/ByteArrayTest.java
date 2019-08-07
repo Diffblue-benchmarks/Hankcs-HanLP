@@ -1,159 +1,362 @@
 package com.hankcs.hanlp.corpus.io;
 
-import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.model.maxent.MaxEntModel;
-import com.hankcs.hanlp.utility.ByteUtil;
-import com.hankcs.hanlp.utility.Predefine;
-import junit.framework.TestCase;
+import static org.mockito.AdditionalMatchers.or;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.isNull;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import com.diffblue.deeptestutils.mock.DTUMemberMatcher;
+import com.hankcs.hanlp.corpus.io.ByteArray;
+import com.hankcs.hanlp.corpus.io.IOUtil;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.Timeout;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-public class ByteArrayTest extends TestCase
-{
-    static String DATA_TEST_OUT_BIN;
-    private File tempFile;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 
-    @Override
-    public void setUp() throws Exception
-    {
-        tempFile = File.createTempFile("hanlp-", ".dat");
-        DATA_TEST_OUT_BIN = tempFile.getAbsolutePath();
-    }
+@RunWith(PowerMockRunner.class)
+public class ByteArrayTest {
 
-    public void testReadDouble() throws Exception
-    {
-        DataOutputStream out = new DataOutputStream(new FileOutputStream(DATA_TEST_OUT_BIN));
-        double d = 0.123456789;
-        out.writeDouble(d);
-        int i = 3389;
-        out.writeInt(i);
-        ByteArray byteArray = ByteArray.createByteArray(DATA_TEST_OUT_BIN);
-        assertEquals(d, byteArray.nextDouble());
-        assertEquals(i, byteArray.nextInt());
-    }
+  @Rule public final ExpectedException thrown = ExpectedException.none();
 
-    public void testReadUTF() throws Exception
-    {
-        DataOutputStream out = new DataOutputStream(new FileOutputStream(DATA_TEST_OUT_BIN));
-        String utf = "hankcs你好123";
-        out.writeUTF(utf);
-        ByteArray byteArray = ByteArray.createByteArray(DATA_TEST_OUT_BIN);
-        assertEquals(utf, byteArray.nextUTF());
-    }
+  @Rule public final Timeout globalTimeout = new Timeout(10000);
 
-    public void testReadUnsignedShort() throws Exception
-    {
-        DataOutputStream out = new DataOutputStream(new FileOutputStream(DATA_TEST_OUT_BIN));
-        int utflen = 123;
-        out.writeByte((byte) ((utflen >>> 8) & 0xFF));
-        out.writeByte((byte) ((utflen >>> 0) & 0xFF));
-        ByteArray byteArray = ByteArray.createByteArray(DATA_TEST_OUT_BIN);
-        assertEquals(utflen, byteArray.nextUnsignedShort());
-    }
+  /* testedClasses: ByteArray */
+  // Test written by Diffblue Cover.
+  @Test
+  public void closeOutputVoid() {
 
-    public void testConvertCharToInt() throws Exception
-    {
-//        for (int i = 0; i < Integer.MAX_VALUE; ++i)
-        for (int i = 0; i < 1024; ++i)
-        {
-            int n = i;
-            char[] twoChar = ByteUtil.convertIntToTwoChar(n);
-            assertEquals(n, ByteUtil.convertTwoCharToInt(twoChar[0], twoChar[1]));
-        }
-    }
+    // Arrange
+    final byte[] myByteArray = {};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
 
-    public void testNextBoolean() throws Exception
-    {
-        DataOutputStream out = new DataOutputStream(new FileOutputStream(tempFile));
-        out.writeBoolean(true);
-        out.writeBoolean(false);
-        ByteArray byteArray = ByteArray.createByteArray(tempFile.getAbsolutePath());
-        assertNotNull(byteArray);
-        assertEquals(byteArray.nextBoolean(), true);
-        assertEquals(byteArray.nextBoolean(), false);
-        tempFile.deleteOnExit();
-    }
+    // Act
+    objectUnderTest.close();
 
-    public void testWriteAndRead() throws Exception
-    {
-        DataOutputStream out = new DataOutputStream(new FileOutputStream(DATA_TEST_OUT_BIN));
-        out.writeChar('H');
-        out.writeChar('e');
-        out.writeChar('l');
-        out.writeChar('l');
-        out.writeChar('o');
-        out.close();
-        ByteArray byteArray = ByteArray.createByteArray(DATA_TEST_OUT_BIN);
-        while (byteArray.hasMore())
-        {
-            byteArray.nextChar();
-//            System.out.println(byteArray.nextChar());
-        }
-    }
+    // Assert side effects
+    Assert.assertNull(objectUnderTest.bytes);
+  }
 
-    public void testWriteBigFile() throws Exception
-    {
-        DataOutputStream out = new DataOutputStream(new FileOutputStream(DATA_TEST_OUT_BIN));
-        for (int i = 0; i < 10000; i++)
-        {
-            out.writeInt(i);
-        }
-        out.close();
-    }
+  // Test written by Diffblue Cover.
 
-    public void testStream() throws Exception
-    {
-        ByteArray byteArray = ByteArrayFileStream.createByteArrayFileStream(DATA_TEST_OUT_BIN);
-        while (byteArray.hasMore())
-        {
-            System.out.println(byteArray.nextInt());
-        }
-    }
+  @Test
+  public void constructorInput0OutputVoid() {
 
-//    /**
-//     * 无法在-Xms512m -Xmx512m -Xmn256m下运行<br>
-//     *     java.lang.OutOfMemoryError: GC overhead limit exceeded
-//     * @throws Exception
-//     */
-//    public void testLoadByteArray() throws Exception
-//    {
-//        ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-//        MaxEntModel.create(byteArray);
-//    }
-//
-//    /**
-//     * 能够在-Xms512m -Xmx512m -Xmn256m下运行
-//     * @throws Exception
-//     */
-//    public void testLoadByteArrayStream() throws Exception
-//    {
-//        ByteArray byteArray = ByteArrayFileStream.createByteArrayFileStream(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-//        MaxEntModel.create(byteArray);
-//    }
-//
-//    public void testBenchmark() throws Exception
-//    {
-//        long start;
-//
-//        ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-//        MaxEntModel.create(byteArray);
-//
-//        byteArray = ByteArrayFileStream.createByteArrayFileStream(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-//        MaxEntModel.create(byteArray);
-//
-//        start = System.currentTimeMillis();
-//        byteArray = ByteArray.createByteArray(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-//        MaxEntModel.create(byteArray);
-//        System.out.printf("ByteArray: %d ms\n", (System.currentTimeMillis() - start));
-//
-//        start = System.currentTimeMillis();
-//        byteArray = ByteArrayFileStream.createByteArrayFileStream(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-//        MaxEntModel.create(byteArray);
-//        System.out.printf("ByteArrayStream: %d ms\n", (System.currentTimeMillis() - start));
-//
-////        ByteArray: 2626 ms
-////        ByteArrayStream: 4165 ms
-//    }
+    // Arrange
+    final byte[] bytes = {};
+
+    // Act, creating object to test constructor
+    final ByteArray objectUnderTest = new ByteArray(bytes);
+
+    // Assert side effects
+    Assert.assertNull(objectUnderTest.bytes);
+  }
+
+  // Test written by Diffblue Cover.
+  @PrepareForTest(IOUtil.class)
+  @Test
+  public void createByteArrayInputNotNullOutputNotNull() throws Exception {
+
+    // Setup mocks
+    PowerMockito.mockStatic(IOUtil.class);
+
+    // Arrange
+    final String path = "3";
+    final byte[] myByteArray = {};
+    final Method readBytesMethod = DTUMemberMatcher.method(IOUtil.class, "readBytes", String.class);
+    PowerMockito.doReturn(myByteArray)
+        .when(IOUtil.class, readBytesMethod)
+        .withArguments(or(isA(String.class), isNull(String.class)));
+
+    // Act
+    final ByteArray actual = ByteArray.createByteArray(path);
+
+    // Assert result
+    Assert.assertNotNull(actual);
+    Assert.assertEquals(0, actual.getOffset());
+    Assert.assertArrayEquals(new byte[] {}, actual.bytes);
+  }
+
+  // Test written by Diffblue Cover.
+  @PrepareForTest(IOUtil.class)
+  @Test
+  public void createByteArrayInputNotNullOutputNull() throws Exception {
+
+    // Setup mocks
+    PowerMockito.mockStatic(IOUtil.class);
+
+    // Arrange
+    final String path = "3";
+    final Method readBytesMethod = DTUMemberMatcher.method(IOUtil.class, "readBytes", String.class);
+    PowerMockito.doReturn(null)
+        .when(IOUtil.class, readBytesMethod)
+        .withArguments(or(isA(String.class), isNull(String.class)));
+
+    // Act
+    final ByteArray actual = ByteArray.createByteArray(path);
+
+    // Assert result
+    Assert.assertNull(actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void finalizeOutputVoid() throws Throwable {
+
+    // Arrange
+    final byte[] myByteArray = {};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    objectUnderTest.finalize();
+
+    // Assert side effects
+    Assert.assertNull(objectUnderTest.bytes);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void getBytesOutput0() {
+
+    // Arrange
+    final byte[] myByteArray = {};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final byte[] actual = objectUnderTest.getBytes();
+
+    // Assert result
+    Assert.assertArrayEquals(new byte[] {}, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void getLengthOutputZero() {
+
+    // Arrange
+    final byte[] myByteArray = {};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final int actual = objectUnderTest.getLength();
+
+    // Assert result
+    Assert.assertEquals(0, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void getOffsetOutputZero() {
+
+    // Arrange
+    final byte[] myByteArray = {};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final int actual = objectUnderTest.getOffset();
+
+    // Assert result
+    Assert.assertEquals(0, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void hasMoreOutputFalse() {
+
+    // Arrange
+    final byte[] myByteArray = {};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final boolean actual = objectUnderTest.hasMore();
+
+    // Assert result
+    Assert.assertFalse(actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void hasMoreOutputTrue() {
+
+    // Arrange
+    final byte[] myByteArray = {(byte)0};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final boolean actual = objectUnderTest.hasMore();
+
+    // Assert result
+    Assert.assertTrue(actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void nextBooleanOutputFalse() {
+
+    // Arrange
+    final byte[] myByteArray = {(byte)0};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final boolean actual = objectUnderTest.nextBoolean();
+
+    // Assert side effects
+    Assert.assertEquals(1, objectUnderTest.getOffset());
+
+    // Assert result
+    Assert.assertFalse(actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void nextBooleanOutputTrue() {
+
+    // Arrange
+    final byte[] myByteArray = {(byte)1};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final boolean actual = objectUnderTest.nextBoolean();
+
+    // Assert side effects
+    Assert.assertEquals(1, objectUnderTest.getOffset());
+
+    // Assert result
+    Assert.assertTrue(actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void nextByteOutputZero() {
+
+    // Arrange
+    final byte[] myByteArray = {(byte)0};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final byte actual = objectUnderTest.nextByte();
+
+    // Assert side effects
+    Assert.assertEquals(1, objectUnderTest.getOffset());
+
+    // Assert result
+    Assert.assertEquals((byte)0, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void nextCharOutputNotNull() {
+
+    // Arrange
+    final byte[] myByteArray = {(byte)0, (byte)0};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final char actual = objectUnderTest.nextChar();
+
+    // Assert side effects
+    Assert.assertEquals(2, objectUnderTest.getOffset());
+
+    // Assert result
+    Assert.assertEquals('\u0000', actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void nextDoubleOutputZero() {
+
+    // Arrange
+    final byte[] myByteArray = {(byte)0, (byte)0, (byte)0, (byte)0,
+                                (byte)0, (byte)0, (byte)0, (byte)0};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final double actual = objectUnderTest.nextDouble();
+
+    // Assert side effects
+    Assert.assertEquals(8, objectUnderTest.getOffset());
+
+    // Assert result
+    Assert.assertEquals(0.0, actual, 0.0);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void nextFloatOutputZero() {
+
+    // Arrange
+    final byte[] myByteArray = {(byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final float actual = objectUnderTest.nextFloat();
+
+    // Assert side effects
+    Assert.assertEquals(4, objectUnderTest.getOffset());
+
+    // Assert result
+    Assert.assertEquals(0.0f, actual, 0.0f);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void nextIntOutputZero() {
+
+    // Arrange
+    final byte[] myByteArray = {(byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final int actual = objectUnderTest.nextInt();
+
+    // Assert side effects
+    Assert.assertEquals(4, objectUnderTest.getOffset());
+
+    // Assert result
+    Assert.assertEquals(0, actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void nextStringOutputNotNull() {
+
+    // Arrange
+    final byte[] myByteArray = {(byte)0, (byte)0, (byte)0, (byte)0,
+                                (byte)0, (byte)1, (byte)0, (byte)0};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final String actual = objectUnderTest.nextString();
+
+    // Assert side effects
+    Assert.assertEquals(4, objectUnderTest.getOffset());
+
+    // Assert result
+    Assert.assertEquals("1a 2b 3c", actual);
+  }
+
+  // Test written by Diffblue Cover.
+  @Test
+  public void nextUnsignedShortOutputZero() {
+
+    // Arrange
+    final byte[] myByteArray = {(byte)0, (byte)0};
+    final ByteArray objectUnderTest = new ByteArray(myByteArray);
+
+    // Act
+    final int actual = objectUnderTest.nextUnsignedShort();
+
+    // Assert side effects
+    Assert.assertEquals(2, objectUnderTest.getOffset());
+
+    // Assert result
+    Assert.assertEquals(0, actual);
+  }
 }
